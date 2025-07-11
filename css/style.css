@@ -166,7 +166,7 @@ p {
 
 .nav-link:hover {
     color: var(--primary-color);
-    text-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+    /* text-shadow: 0 0 8px rgba(0, 212, 255, 0.5); */
     background: rgba(0, 212, 255, 0.05);
 }
 
