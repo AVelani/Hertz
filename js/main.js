@@ -84,44 +84,7 @@ function initAdvancedFeatures() {
  * Custom cursor effects
  */
 function initCustomCursor() {
-    // Only on desktop devices
-    if (window.innerWidth > 768) {
-        const cursor = document.createElement('div');
-        cursor.className = 'custom-cursor';
-        cursor.style.cssText = `
-            position: fixed;
-            width: 20px;
-            height: 20px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 10000;
-            transition: transform 0.1s ease;
-            opacity: 0;
-            mix-blend-mode: difference;
-        `;
-        document.body.appendChild(cursor);
-        
-        document.addEventListener('mousemove', function(e) {
-            cursor.style.left = e.clientX - 10 + 'px';
-            cursor.style.top = e.clientY - 10 + 'px';
-            cursor.style.opacity = '1';
-        });
-        
-        // Scale cursor on interactive elements
-        const interactiveElements = document.querySelectorAll('a, button, .service-card, .nav-link');
-        interactiveElements.forEach(element => {
-            element.addEventListener('mouseenter', () => {
-                cursor.style.transform = 'scale(2)';
-                cursor.style.background = 'var(--accent-color)';
-            });
-            
-            element.addEventListener('mouseleave', () => {
-                cursor.style.transform = 'scale(1)';
-                cursor.style.background = 'var(--primary-color)';
-            });
-        });
-    }
+    // Custom cursor disabled by user request.
 }
 
 /**
@@ -258,8 +221,10 @@ function initAdvancedHoverEffects() {
     const socialLinks = document.querySelectorAll('.social-link, .footer-social a');
     socialLinks.forEach(link => {
         link.addEventListener('mouseenter', function() {
+            this.style.transition = 'transform .3s ease';
             this.style.transform = 'translateY(-3px) rotate(5deg)';
-            this.style.boxShadow = '0 5px 15px rgba(0, 212, 255, 0.3)';
+            this.style.boxShadow = '0 5px 15px rgba(0, 213, 255, 0.21)';
+            this.style.backgroundColor = '#212020';
         });
         
         link.addEventListener('mouseleave', function() {
@@ -351,8 +316,8 @@ function updateActiveNavLink() {
     const navLinks = document.querySelectorAll('.nav-link');
     
     let currentSection = '';
-    const scrollY = window.scrollY + 100; // Offset for fixed navbar
-    
+    const scrollY = window.scrollY + (window.innerHeight / 2); // Adjust scroll position to be more centered
+
     sections.forEach(section => {
         const sectionTop = section.offsetTop;
         const sectionHeight = section.offsetHeight;
@@ -435,10 +400,10 @@ function initSmoothScrolling() {
                     behavior: 'smooth'
                 });
                 
-                // Close mobile menu if open
+                // Close mobile menu if open using the proper function
                 const navMenu = document.querySelector('.nav-menu');
                 if (navMenu.classList.contains('active')) {
-                    navMenu.classList.remove('active');
+                    closeMobileMenu();
                 }
             }
         });
@@ -900,18 +865,20 @@ function initMobileMenu() {
         // Enhanced link click handling
         navLinks.forEach((link, index) => {
             link.addEventListener('click', function(e) {
-                // Animate out before closing
-                navLinks.forEach((l, i) => {
+                if (isMenuOpen) {
+                    // Animate out before closing
+                    navLinks.forEach((l, i) => {
+                        setTimeout(() => {
+                            l.style.opacity = '0';
+                            l.style.transform = 'translateX(20px)';
+                        }, i * 50);
+                    });
+                    
+                    // Close menu after animation
                     setTimeout(() => {
-                        l.style.opacity = '0';
-                        l.style.transform = 'translateX(20px)';
-                    }, i * 50);
-                });
-                
-                // Close menu after animation
-                setTimeout(() => {
-                    closeMobileMenu();
-                }, navLinks.length * 50 + 200);
+                        closeMobileMenu();
+                    }, navLinks.length * 50 + 200);
+                }
             });
             
             // Add hover effects for mobile menu items
@@ -1021,19 +988,6 @@ function initContactForm() {
  * Performance optimization
  */
 function initPerformanceOptimizations() {
-    // Lazy loading for images (modern browsers)
-    if ('loading' in HTMLImageElement.prototype) {
-        const images = document.querySelectorAll('img[loading="lazy"]');
-        images.forEach(img => {
-            img.src = img.src;
-        });
-    } else {
-        // Fallback for older browsers
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js';
-        document.body.appendChild(script);
-    }
-    
     // Preload critical resources
     const criticalImages = [
         'images/hero_industrial_control_room.jpg'
